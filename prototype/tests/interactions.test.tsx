@@ -1,0 +1,28 @@
+import {it,expect} from 'vitest';
+import {render,screen} from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
+import CareLoop from '../components/CareLoop';
+import Support from '../app/support/page';
+import Help from '../app/help/page';
+import Layout from '../app/layout';
+it('supports keyboard check-in, transparent suggestions, temporary reflection and reset',async()=>{
+ const user=userEvent.setup();render(<CareLoop/>);
+ await user.click(screen.getByRole('button',{name:'Explore the demo'}));
+ const radio=screen.getByRole('radio',{name:'Overwhelmed'});radio.focus();await user.keyboard(' ');expect(radio).toBeChecked();
+ await user.selectOptions(screen.getByLabelText(/What’s around/),'Study');
+ await user.click(screen.getByRole('button',{name:/Find a small/}));
+ expect(screen.getByRole('region',{name:'Your Care Loop suggestions'})).toBeInTheDocument();
+ await user.click(screen.getByText('Why am I seeing this?'));expect(screen.getByText(/Study selects the first action/)).toBeVisible();
+ await user.click(screen.getAllByRole('button',{name:'Try this step ↗'})[0]);expect(screen.getByRole('button',{name:'Selected ✓'})).toHaveAttribute('aria-pressed','true');
+ await user.type(screen.getByLabelText(/Private demo reflection/),'Alex opens a reading list.');
+ await user.click(screen.getByRole('button',{name:'Keep in this session'}));expect(screen.getByRole('status')).toHaveTextContent('temporary memory');
+ await user.selectOptions(screen.getByLabelText('Check-ins per day'),'3');
+ expect(screen.getByRole('link',{name:/Explore example support/})).toHaveAttribute('href','/support');
+ await user.click(screen.getByRole('button',{name:'Reset demo & clear session'}));
+ await user.click(screen.getByRole('button',{name:'Explore the demo'}));
+ expect(screen.getByLabelText('Check-ins per day')).toHaveValue('1');
+ expect(screen.getByRole('radio',{name:'Overwhelmed'})).not.toBeChecked();
+});
+it('does not submit check-in without an emotion',async()=>{const user=userEvent.setup();render(<CareLoop/>);await user.click(screen.getByRole('button',{name:'Explore the demo'}));await user.click(screen.getByRole('button',{name:/Find a small/}));expect(screen.queryByRole('region',{name:'Your Care Loop suggestions'})).not.toBeInTheDocument()});
+it('filters mock support and exposes return navigation',async()=>{const user=userEvent.setup();render(<Support/>);expect(screen.getAllByText('EXAMPLE · UNVERIFIED')).toHaveLength(6);await user.selectOptions(screen.getByLabelText('Filter example support by context'),'Housing');expect(screen.getByRole('heading',{name:'Housing advice desk'})).toBeInTheDocument();expect(screen.queryByRole('heading',{name:'Study skills team'})).not.toBeInTheDocument();expect(screen.getByRole('link',{name:'Back to check-in'})).toHaveAttribute('href','/')});
+it('keeps safety and support routes in global navigation',()=>{render(<Layout><Help/></Layout>,{container:document});expect(screen.getByRole('link',{name:'Safety & help'})).toHaveAttribute('href','/help');expect(screen.getByRole('link',{name:'Campus support'})).toHaveAttribute('href','/support');expect(screen.getByText(/Nobody monitors your entries/)).toBeInTheDocument()});
