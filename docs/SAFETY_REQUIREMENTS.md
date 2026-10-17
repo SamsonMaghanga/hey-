@@ -8,3 +8,7 @@ Each directory entry visibly says example/unverified and contains no live contac
 All inputs stay in React memory. No logging, storage or transmission. Reset clears current state; refresh clears entries. This is not encrypted storage or protection against someone seeing an open screen. Real-data use requires separate consent, privacy, security and safeguarding review.
 
 Legacy Vite screens remain for preservation only and are outside this prototype's approved scope.
+
+## Hosted prototype
+
+The user approved and confirmed a Vercel deployment of the synthetic-data prototype on 17 October 2026. Vercel Authentication was enabled in deployment output. Application memory-only handling does not imply that the hosting provider has no access logs, authentication cookies or infrastructure metadata. Next.js telemetry is disabled by the run scripts; Vercel CLI telemetry is separate. Do not add analytics or treat this prototype as suitable for real health data without a separate review.
